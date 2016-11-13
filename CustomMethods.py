@@ -41,7 +41,7 @@ def processImage(imageFileName):
     im = cv2.imread(imageFileName)
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(gray, 127, 255, 0)
-    a, contours, hierarchy = cv2.findContours(thresh, 1, 2)
+    contours, hierarchy = cv2.findContours(thresh, 1, 2)
     idx = 0
     contourList = []
     for cnt in contours:
