@@ -99,14 +99,22 @@ def main():
 
     print clusters
 
-    plt.axis([0, 800, 0, 800])
-    for image in images:
-        for i, countour in enumerate(image.contourList):
-            X =(countour.x)
-            Y = (countour.x)
-            Xc =(countour.cX)
-            Yc=(countour.cY)
-            plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
+    # Draw the cluster points
+    X = []
+    Y = []
 
+    Xc = []
+    Yc = []
+    plt.axis([0, 800, 0, 800])
+    for i, c in enumerate(clusters):
+        X = []
+        Y = []
+        Xc = [c.centroid.coords[0]]
+        Yc = [c.centroid.coords[1]]
+        for p in c.points:
+            X.append(p.coords[0])
+            Y.append(p.coords[1])
+        plt.plot(X, Y, 'w', markerfacecolor=colors[i], marker='.', markersize=10)
+        plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
     plt.show()
 
