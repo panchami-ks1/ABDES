@@ -64,17 +64,21 @@ def main():
     images = []
     images.append(processImage('diag.jpg'))
 
+    images.append(processImage('sdiag.jpg'))
+
+
     fig = plt.figure(figsize=(8, 6))
     fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
     colors = ['green', 'blue', 'pink', 'gold', 'red', 'yellow', 'black']
 
     plt.axis([0, 800, 0, 800])
-    for i, countour in enumerate(images[0].contourList):
-        X =(countour.x)
-        Y = (countour.x)
-        Xc =(countour.cX)
-        Yc=(countour.cY)
-        plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
+    for image in images:
+        for i, countour in enumerate(image.contourList):
+            X =(countour.x)
+            Y = (countour.x)
+            Xc =(countour.cX)
+            Yc=(countour.cY)
+            plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
 
     plt.show()
 

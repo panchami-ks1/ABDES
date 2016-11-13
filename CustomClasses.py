@@ -9,7 +9,7 @@ import cv2
 
 # ImageObject class is used for saving the complete details of an input image.
 # It contains the following information's
-# 1. Image Name for refference.
+# 1. Image file for reference.
 # 2. A List containing individual text regions detected from the image.
 class ImageObject():
     def __init__(self, image, contourList):
