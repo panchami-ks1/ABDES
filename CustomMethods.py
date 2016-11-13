@@ -6,7 +6,8 @@
 
 # Imports
 import cv2
-from CustomClasses import ContourObject, ImageObject
+from CustomClasses import ContourObject, ImageObject, Point
+from Kmeans import kmeans
 import matplotlib.pyplot as plt
 
 
@@ -56,6 +57,20 @@ def processImage(imageFileName):
             print x, y
     return ImageObject(im, contourList)
 
+def generateInitialClusterPoints(images):
+    initContourPoints = []
+    initContoursList = images[0].contourList
+    for contour in initContoursList:
+        initContourPoints.append(Point([contour.cX, contour.cY]))
+    return initContourPoints
+
+def generateAllContourPointsForClustering(images):
+    contourPoints = []
+    for image in images:
+        contourList = image.contourList
+        for contour in contourList:
+            contourPoints.append(Point([contour.cX, contour.cY]))
+    return contourPoints
 
 # The main method from where the all project execution begins.
 # arguments : void
@@ -63,13 +78,26 @@ def processImage(imageFileName):
 def main():
     images = []
     images.append(processImage('diag.jpg'))
-
     images.append(processImage('sdiag.jpg'))
 
 
     fig = plt.figure(figsize=(8, 6))
     fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
     colors = ['green', 'blue', 'pink', 'gold', 'red', 'yellow', 'black']
+
+    #Populate initial points for clustering
+    initContourPoints = generateInitialClusterPoints(images)
+
+    # Generate some points
+    points = generateAllContourPointsForClustering(images)
+
+    # When do we say the optimization has 'converged' and stop updating clusters
+    opt_cutoff = 0.5
+
+    # Cluster those data!
+    clusters = kmeans(initContourPoints, points, opt_cutoff)
+
+    print clusters
 
     plt.axis([0, 800, 0, 800])
     for image in images:

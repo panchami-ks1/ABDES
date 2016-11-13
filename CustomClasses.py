@@ -5,7 +5,7 @@
 
 # Imports
 import cv2
-
+import math
 
 # ImageObject class is used for saving the complete details of an input image.
 # It contains the following information's
@@ -35,3 +35,69 @@ class ContourObject():
         cx = int(M['m10'] / M['m00'])
         cy = int(M['m01'] / M['m00'])
         return cx, cy
+
+class Point:
+    def __init__(self, coords):
+        self.coords = coords
+        self.n = len(coords)
+
+    def __repr__(self):
+        return str(self.coords)
+
+class Cluster:
+    def __init__(self, points):
+        if len(points) == 0: raise Exception("ILLEGAL: empty cluster")
+        # The points that belong to this cluster
+        self.points = points
+
+        # The dimensionality of the points in this cluster
+        self.n = points[0].n
+
+        # Assert that all points are of the same dimensionality
+        for p in points:
+            if p.n != self.n: raise Exception("ILLEGAL: wrong dimensions")
+
+        # Set up the initial centroid (this is usually based off one point)
+        self.centroid = self.calculateCentroid()
+
+    def __repr__(self):
+        '''
+        String representation of this object
+        '''
+        return str(self.points)
+
+    def update(self, points):
+        '''
+        Returns the distance between the previous centroid and the new after
+        recalculating and storing the new centroid.
+        '''
+        old_centroid = self.centroid
+        self.points = points
+        self.centroid = self.calculateCentroid()
+        shift = getDistance(old_centroid, self.centroid)
+        return shift
+
+    def calculateCentroid(self):
+        '''
+        Finds a virtual center point for a group of n-dimensional points
+        '''
+        numPoints = len(self.points)
+        # Get a list of all coordinates in this cluster
+        coords = [p.coords for p in self.points]
+        # Reformat that so all x's are together, all y'z etc.
+        unzipped = zip(*coords)
+        # Calculate the mean for each dimension
+        centroid_coords = [math.fsum(dList) / numPoints for dList in unzipped]
+
+        return Point(centroid_coords)
+
+def getDistance(a, b):
+    '''
+        Euclidean distance between two n-dimensional points.
+        Note: This can be very slow and does not scale well
+        '''
+    if a.n != b.n:
+        raise Exception("ILLEGAL: non comparable points")
+
+    ret = reduce(lambda x, y: x + pow((a.coords[y] - b.coords[y]), 2), range(a.n), 0.0)
+    return math.sqrt(ret)
