@@ -1,11 +1,14 @@
 ################################################################
 ####### Automate Block Diagram Evaluation System (ABDES) #######
-############################ README ############################
+##### Custom Classes used for the project are defined here.#####
 ################################################################
 
-ABDES intended to evaluate block diagrams in answer papers.
+
+
+# Imports
+from CustomMethods import main
 
 
 
-
-Run the main.py file
+if __name__ == "__main__":
+    main()
