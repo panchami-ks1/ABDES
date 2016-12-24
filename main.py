@@ -6,9 +6,10 @@
 
 
 # Imports
-from CustomMethods import main
+from CustomMethods import main , testingData
 
 
 
 if __name__ == "__main__":
     main()
+    testingData()

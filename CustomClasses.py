@@ -6,7 +6,7 @@
 # Imports
 import cv2
 import math
-
+import dill
 # ImageObject class is used for saving the complete details of an input image.
 # It contains the following information's
 # 1. Image file for reference.
@@ -17,29 +17,45 @@ class ImageObject():
         self.contourList = contourList
 
 
-# ContourObject class is used for saving the details of adetected text region/contour region.
+
+# ContourObject class is used for saving the details of a  detected text region/contour region.
 # It contains the following information's
 # 1. Detected Contour feature.
 # 2. x, y co-ordinate details.
 # 3. Centroid of the detected contour region.
 class ContourObject():
-    def __init__(self, contour, x, y):
+    def __init__(self, contour, x, y, text):
         # type: (object, object, object) -> object
         self.contour = contour
         self.x = x
         self.y = y
+        self.text = text
         self.cX, self.cY = self.findCentroid(contour, x, y)
-    # Method to find the centroid of the contour object.
+
     def findCentroid(self, contour, x, y):
+
         M = cv2.moments(contour)
-        cx = int(M['m10'] / M['m00'])
-        cy = int(M['m01'] / M['m00'])
+        if M["m00"] != 0:
+            cx = int(M["m10"] / M["m00"])
+            cy = int(M["m01"] / M["m00"])
+        else:
+            cx, cy = 0, 0
+            print x, y, "halo"
+        # cx = int(M['m10'] / M['m00'])
+        # cy = int(M['m01'] / M['m00'])
         return cx, cy
 
+
+class TrainedData():
+    def __init__(self, images, clusters):
+        self.images = images
+        self.clusters = clusters
+
 class Point:
-    def __init__(self, coords):
+    def __init__(self, coords, text):
         self.coords = coords
         self.n = len(coords)
+        self.text = text
 
     def __repr__(self):
         return str(self.coords)
@@ -89,7 +105,7 @@ class Cluster:
         # Calculate the mean for each dimension
         centroid_coords = [math.fsum(dList) / numPoints for dList in unzipped]
 
-        return Point(centroid_coords)
+        return Point(centroid_coords, self.points[0].text)
 
 def getDistance(a, b):
     '''

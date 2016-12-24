@@ -3,20 +3,25 @@
 ##### Custom Classes used for the project are defined here.#####
 ################################################################
 
-
 # Imports
+import Image
+import dill
 import cv2
-from CustomClasses import ContourObject, ImageObject, Point
+import time
+
+import pytesser
+from CustomClasses import ContourObject, ImageObject, Point, TrainedData
 from Kmeans import kmeans
+from KmeansClassification import kmeansClassification
 import matplotlib.pyplot as plt
 
 
 # Method will create a ContourObject and add it to the contourList given in the argument.
 # arguments : (contourList, cnt, x, y)
 # return : void
-def addCountourToList(contourList, cnt, x, y):
-    if len(contourList) == 0:
-        contourList.append(ContourObject(cnt, x, y))
+def addCountourToList(contourList, cnt, x, y, text):
+    if len(contourList) == 0 and text != "":
+        contourList.append(ContourObject(cnt, x, y, text))
     else:
         flag = True
         for contourVar in contourList:
@@ -28,19 +33,21 @@ def addCountourToList(contourList, cnt, x, y):
             if x == 1 and y == 1:
                 flag = False
                 print "Point removed" + str(x) + str(y)
-        if flag:
-            contourList.append(ContourObject(cnt, x, y))
+        if flag and text != "":
+            contourObject = ContourObject(cnt, x, y, text)
+            if contourObject.cX != 0 and contourObject.cY != 0:
+                contourList.append(contourObject)
     pass
 
 
-# Method will processing the input image by identifying the text blocks present in it and returns a ImageObject with
 # detected contour region details.
 # arguments : (imageFileName)
 # return : ImageObject
 def processImage(imageFileName):
     im = cv2.imread(imageFileName)
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    ret, thresh = cv2.threshold(gray, 127, 255, 0)
+    #ret, thresh = cv2.threshold(gray, 127, 255, 0)
+    thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
     idx = 0
     contourList = []
@@ -50,18 +57,26 @@ def processImage(imageFileName):
         peri = cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
         if len(approx) == 4:
-            addCountourToList(contourList, cnt, x, y)
             cv2.rectangle(im, (x, y), (x + w, y + h), (200, 0, 0), 2)
             roi = im[y:y + h, x:x + w]
-            cv2.imwrite('tmp2/' + str(idx) + '.jpg', roi)
-            print x, y
+            fileName = 'images/tmp/' + str(idx) + '.jpg'
+            cv2.imwrite(fileName, roi)
+            #time.sleep(0.5)
+            img = Image.open(fileName)
+            #plt.plot(roi)
+            text = pytesser.image_to_string(img).strip()
+            #print text
+            addCountourToList(contourList, cnt, x, y, text)
+            #print x,y
+            #print text
+
     return ImageObject(im, contourList)
 
 def generateInitialClusterPoints(images):
     initContourPoints = []
     initContoursList = images[0].contourList
     for contour in initContoursList:
-        initContourPoints.append(Point([contour.cX, contour.cY]))
+        initContourPoints.append(Point([contour.cX, contour.cY], contour.text))
     return initContourPoints
 
 def generateAllContourPointsForClustering(images):
@@ -69,16 +84,55 @@ def generateAllContourPointsForClustering(images):
     for image in images:
         contourList = image.contourList
         for contour in contourList:
-            contourPoints.append(Point([contour.cX, contour.cY]))
+            contourPoints.append(Point([contour.cX, contour.cY], contour.text))
     return contourPoints
+def showClusters(clusters):
+    for i, cluster in enumerate(clusters):
+        print "Cluster " + str(i+1) + " : Text : " + cluster.points[0].text
+        for point in cluster.points:
+            print "( " + str(point.coords) + " )"
 
 # The main method from where the all project execution begins.
 # arguments : void
 # return : void
+def saveTrainingData(images, clusters):
+    trainedData = TrainedData(images,clusters)
+
+    with open('trained_data.pkl', 'wb') as f:
+        dill.dump(trainedData, f)
+    pass
+
+def testingData():
+        images = []
+        images.append(processImage('images/diagram2.jpg'))
+        with open('trained_data.pkl', 'rb') as f:
+            data = dill.load(f)
+
+        points = generateAllContourPointsForClustering(images)
+        opt_cutoff = 0.5
+        count=0
+        clusters = kmeansClassification(data.clusters, points)
+        for p in points:
+            cluster = findCluster(p, clusters)
+            if cluster.points[1].text == p.text:
+                count+=1
+            #print cluster.points[0].text, p.text
+        print count
+            #showClusters(clusters)
+def findCluster(p,clusters):
+    for i, cluster in enumerate(clusters):
+         if p in cluster.points:
+              return cluster
+
+
+
+
+
 def main():
     images = []
-    images.append(processImage('diag.jpg'))
-    images.append(processImage('sdiag.jpg'))
+    images.append(processImage('images/diagram.jpg'))
+    images.append(processImage('images/diagram2.jpg'))
+
 
 
     fig = plt.figure(figsize=(8, 6))
@@ -88,16 +142,17 @@ def main():
     #Populate initial points for clustering
     initContourPoints = generateInitialClusterPoints(images)
 
+
     # Generate some points
     points = generateAllContourPointsForClustering(images)
-
     # When do we say the optimization has 'converged' and stop updating clusters
     opt_cutoff = 0.5
 
     # Cluster those data!
     clusters = kmeans(initContourPoints, points, opt_cutoff)
+    #showClusters(clusters) 
 
-    print clusters
+    saveTrainingData(images, clusters)
 
     # Draw the cluster points
     X = []
@@ -114,7 +169,7 @@ def main():
         for p in c.points:
             X.append(p.coords[0])
             Y.append(p.coords[1])
-        plt.plot(X, Y, 'w', markerfacecolor=colors[i], marker='.', markersize=10)
-        plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
+        #plt.plot(X, Y, 'w', markerfacecolor=colors[i], marker='.', markersize=10)
+        #plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
     plt.show()
 
