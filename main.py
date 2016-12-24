@@ -6,10 +6,8 @@
 
 
 # Imports
-from CustomMethods import main , testingData
-
-
+from CustomMethods import main, diagramEvaluation
 
 if __name__ == "__main__":
     main()
-    testingData()
+    diagramEvaluation()

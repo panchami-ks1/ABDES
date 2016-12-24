@@ -4,7 +4,7 @@
 ################################################################
 
 # Imports
-import Image
+from PIL import Image
 import dill
 import cv2
 import time
@@ -37,6 +37,7 @@ def addCountourToList(contourList, cnt, x, y, text):
             contourObject = ContourObject(cnt, x, y, text)
             if contourObject.cX != 0 and contourObject.cY != 0:
                 contourList.append(contourObject)
+                print x, y, text
     pass
 
 
@@ -67,8 +68,7 @@ def processImage(imageFileName):
             text = pytesser.image_to_string(img).strip()
             #print text
             addCountourToList(contourList, cnt, x, y, text)
-            #print x,y
-            #print text
+
 
     return ImageObject(im, contourList)
 
@@ -102,36 +102,39 @@ def saveTrainingData(images, clusters):
         dill.dump(trainedData, f)
     pass
 
-def testingData():
+def diagramEvaluation():
         images = []
-        images.append(processImage('images/diagram2.jpg'))
+        images.append(processImage('images/diag_err_excess.bmp'))
         with open('trained_data.pkl', 'rb') as f:
             data = dill.load(f)
 
         points = generateAllContourPointsForClustering(images)
-        opt_cutoff = 0.5
-        count=0
+
         clusters = kmeansClassification(data.clusters, points)
-        for p in points:
-            cluster = findCluster(p, clusters)
-            if cluster.points[1].text == p.text:
-                count+=1
-            #print cluster.points[0].text, p.text
-        print count
-            #showClusters(clusters)
+        score = evaluateAnswerPoints(points, clusters)
+        showClusters(clusters)
+
+        print "Score : " , score
 def findCluster(p,clusters):
     for i, cluster in enumerate(clusters):
          if p in cluster.points:
               return cluster
 
-
+def evaluateAnswerPoints(points, clusters):
+    count = 0
+    for p in points:
+        cluster = findCluster(p, clusters)
+        if cluster.points[1].text == p.text:
+            count += 1
+            # print cluster.points[0].text, p.text
+    return count
 
 
 
 def main():
     images = []
-    images.append(processImage('images/diagram.jpg'))
-    images.append(processImage('images/diagram2.jpg'))
+    images.append(processImage('images/diag.bmp'))
+    images.append(processImage('images/diag2.bmp'))
 
 
 
@@ -150,7 +153,7 @@ def main():
 
     # Cluster those data!
     clusters = kmeans(initContourPoints, points, opt_cutoff)
-    #showClusters(clusters) 
+    showClusters(clusters)
 
     saveTrainingData(images, clusters)
 
@@ -169,7 +172,7 @@ def main():
         for p in c.points:
             X.append(p.coords[0])
             Y.append(p.coords[1])
-        #plt.plot(X, Y, 'w', markerfacecolor=colors[i], marker='.', markersize=10)
-        #plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
+        plt.plot(X, Y, 'w', markerfacecolor=colors[i], marker='.', markersize=10)
+        plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
     plt.show()
 
