@@ -26,8 +26,11 @@ def kmeansClassification(clusters, points):
             if distance < smallest_distance:
                 smallest_distance = distance
                 clusterIndex = i + 1
-        lists[clusterIndex].append(p)
-
+        threshold=50
+        if smallest_distance>50:
+            print "Removed"
+        else:
+            lists[clusterIndex].append(p)
     # Set our biggest_shift to zero for this iteration
     biggest_shift = 0.0
 

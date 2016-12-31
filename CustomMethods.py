@@ -104,7 +104,7 @@ def saveTrainingData(images, clusters):
 
 def diagramEvaluation():
         images = []
-        images.append(processImage('images/diag.bmp'))
+        images.append(processImage('images/diag_err_excess.bmp'))
         with open('trained_data.pkl', 'rb') as f:
             data = dill.load(f)
 
@@ -147,8 +147,11 @@ def evaluateAnswerPointsLesser(points, clusters):
     count = 0
     for p in points:
         cluster = findCluster(p, clusters)
-        if cluster.points[1].text == p.text:
+        if cluster:
+           if cluster.points[1].text == p.text:
             count += 1
+        else:
+            count -=1
     print "Score : ", count
     pass
 
@@ -158,8 +161,12 @@ def evaluateAnswerPointsGreater(points, clusters):
     count = 0
     for p in points:
         cluster = findCluster(p, clusters)
-        if cluster.points[1].text == p.text:
-            count += 1
+        if cluster:
+            if cluster.points[1].text == p.text:
+                count += 1
+        else:
+            count -= 1
+
     print "Score : ", count
     pass
 
