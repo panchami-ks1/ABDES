@@ -15,6 +15,7 @@ class ImageObject():
     def __init__(self, image, contourList):
         self.image = image
         self.contourList = contourList
+        self.image_cut = image
 
 
 

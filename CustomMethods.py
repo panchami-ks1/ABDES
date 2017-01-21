@@ -9,6 +9,8 @@ import dill
 import cv2
 import time
 
+from PIL import ImageFilter
+
 import pytesser
 from CustomClasses import ContourObject, ImageObject, Point, TrainedData
 from Kmeans import kmeans
@@ -20,8 +22,10 @@ import matplotlib.pyplot as plt
 # arguments : (contourList, cnt, x, y)
 # return : void
 def addCountourToList(contourList, cnt, x, y, text):
+    flag = False
     if len(contourList) == 0 and text != "":
         contourList.append(ContourObject(cnt, x, y, text))
+        flag = True
     else:
         flag = True
         for contourVar in contourList:
@@ -33,13 +37,25 @@ def addCountourToList(contourList, cnt, x, y, text):
             if x == 1 and y == 1:
                 flag = False
                 print "Point removed" + str(x) + str(y)
-        if flag and text != "":
+        if flag and (text != "" or len(text) != 0):
             contourObject = ContourObject(cnt, x, y, text)
             if contourObject.cX != 0 and contourObject.cY != 0:
                 contourList.append(contourObject)
                 print x, y, text
-    pass
+            else:
+                flag = False
+        else:
+            flag = False
 
+    return flag
+
+
+def removeImageContent(image, positions):
+    image_crop_part = image.crop(positions)
+    for i in range(100):  # You can blur many times
+        image_crop_part = image_crop_part.filter(ImageFilter.BLUR)
+    image.paste(image_crop_part, positions)
+    return image
 
 # detected contour region details.
 # arguments : (imageFileName)
@@ -47,6 +63,7 @@ def addCountourToList(contourList, cnt, x, y, text):
 def processImage(imageFileName):
     im = cv2.imread(imageFileName)
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    image = Image.open(imageFileName)
     #ret, thresh = cv2.threshold(gray, 127, 255, 0)
     thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
@@ -56,20 +73,25 @@ def processImage(imageFileName):
         idx += 1
         x, y, w, h = cv2.boundingRect(cnt)
         peri = cv2.arcLength(cnt, True)
-        approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+        # approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+        approx = cv2.approxPolyDP(cnt, 0.01 * peri, True)
         if len(approx) == 4:
-            cv2.rectangle(im, (x, y), (x + w, y + h), (200, 0, 0), 2)
+            # cv2.rectangle(im, (x, y), (x + w, y + h), (200, 0, 0), 2)
             roi = im[y:y + h, x:x + w]
             fileName = 'images/tmp/' + str(idx) + '.jpg'
             cv2.imwrite(fileName, roi)
-            #time.sleep(0.5)
+
             img = Image.open(fileName)
-            #plt.plot(roi)
+
             text = pytesser.image_to_string(img).strip()
             #print text
-            addCountourToList(contourList, cnt, x, y, text)
-
-
+            if (addCountourToList(contourList, cnt, x, y, text)):
+                cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 255), 2)
+                image = removeImageContent(image, [x-3, y-3, (x + w + 3), (y + h + 3)])
+                print "Kli :", text, "$$"
+    image.save("cut_" + imageFileName)
+    imageObject = ImageObject(im, contourList)
+    imageObject.image_cut = image
     return ImageObject(im, contourList)
 
 def generateInitialClusterPoints(images):
@@ -104,7 +126,7 @@ def saveTrainingData(images, clusters):
 
 def diagramEvaluation():
         images = []
-        images.append(processImage('images/diag_err_excess.bmp'))
+        images.append(processImage('images/dia.jpg'))
         with open('trained_data.pkl', 'rb') as f:
             data = dill.load(f)
 
@@ -180,8 +202,8 @@ def findCluster(p,clusters):
 
 def main():
     images = []
-    images.append(processImage('images/diag.bmp'))
-    images.append(processImage('images/diag2.bmp'))
+    images.append(processImage('images/dia.jpg'))
+    # images.append(processImage('images/diag2.bmp'))
 
 
 
