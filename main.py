@@ -6,9 +6,14 @@
 
 
 # Imports
-from CustomMethods import main
+from ArrowDetection import arrowEvaluation
+from Evaluation import diagramEvaluation
+from Training import trainData
+
 
 
 
 if __name__ == "__main__":
-    main()
+    # trainData()
+    # diagramEvaluation()
+    arrowEvaluation()
