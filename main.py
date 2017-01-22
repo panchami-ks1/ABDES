@@ -6,8 +6,12 @@
 
 
 # Imports
-from CustomMethods import main, diagramEvaluation
+from Evaluation import diagramEvaluation
+from Training import trainData
+
+
+
 
 if __name__ == "__main__":
-    main()
-    # diagramEvaluation()
+    trainData()
+    diagramEvaluation()

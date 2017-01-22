@@ -1,5 +1,6 @@
 import math
 
+from CommonMethods import getDistance
 from CustomClasses import Cluster
 
 
@@ -54,14 +55,3 @@ def kmeans(initContourPoints, points, cutoff):
             break
     return clusters
 
-
-def getDistance(a, b):
-    '''
-        Euclidean distance between two n-dimensional points.
-        Note: This can be very slow and does not scale well
-        '''
-    if a.n != b.n:
-        raise Exception("ILLEGAL: non comparable points")
-
-    ret = reduce(lambda x, y: x + pow((a.coords[y] - b.coords[y]), 2), range(a.n), 0.0)
-    return math.sqrt(ret)

@@ -7,6 +7,8 @@
 import cv2
 import math
 import dill
+
+
 # ImageObject class is used for saving the complete details of an input image.
 # It contains the following information's
 # 1. Image file for reference.
@@ -16,7 +18,6 @@ class ImageObject():
         self.image = image
         self.contourList = contourList
         self.image_cut = image
-
 
 
 # ContourObject class is used for saving the details of a  detected text region/contour region.
@@ -52,6 +53,7 @@ class TrainedData():
         self.images = images
         self.clusters = clusters
 
+
 class Point:
     def __init__(self, coords, text):
         self.coords = coords
@@ -60,6 +62,7 @@ class Point:
 
     def __repr__(self):
         return str(self.coords)
+
 
 class Cluster:
     def __init__(self, points):
@@ -107,6 +110,7 @@ class Cluster:
         centroid_coords = [math.fsum(dList) / numPoints for dList in unzipped]
 
         return Point(centroid_coords, self.points[0].text)
+
 
 def getDistance(a, b):
     '''

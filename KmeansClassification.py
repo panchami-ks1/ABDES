@@ -1,6 +1,6 @@
 import math
 
-from CustomClasses import Cluster
+from CommonMethods import getDistance
 
 
 def kmeansClassification(clusters, points):
@@ -39,17 +39,3 @@ def kmeansClassification(clusters, points):
         # Calculate how far the centroid moved in this iteration
         shift = clusters[i].update(lists[i])
     return clusters
-
-
-
-
-def getDistance(a, b):
-    '''
-        Euclidean distance between two n-dimensional points.
-        Note: This can be very slow and does not scale well
-        '''
-    if a.n != b.n:
-        raise Exception("ILLEGAL: non comparable points")
-
-    ret = reduce(lambda x, y: x + pow((a.coords[y] - b.coords[y]), 2), range(a.n), 0.0)
-    return math.sqrt(ret)
