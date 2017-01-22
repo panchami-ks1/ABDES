@@ -1,0 +1,55 @@
+case1:length(q.n points)==length(traing.points)
+       if cluster.points[1].text == p.text:
+                count+=1
+            if(count==length(traing.points)):
+                 return count
+            elif(count<length(traing.points)):
+                 return count
+            if the word is not placed in corresponding cluster check other cluster
+            if all words are placed in reversed order
+
+case2:length(q.n points)>length(traing.points):
+        if cluster.points[1].text == p.text:
+                count+=1
+             if(count==length(traing.points)):
+                 return count-extra
+              if(count<length(traing.points)):
+                 return count-extra
+                 if the word is not placed in corresponding cluster check other cluster
+                 if all words are placed in  reversed order
+
+case3:length(q.n points)<length(traing.points):
+        if cluster.points[1].text == p.text:
+                count+=1
+        return count
+
+
+Case 1: (Point count equal)
+1.1 : Successfull match. all Good.
+1.2 : Not all points mapped to unique clusters (one point in one cluster mapping not happend)
+1.3 : getCluster methord not returned a cluster for a particular point.
+1.4 : Point miss mapped to another clusters (extream case!!)
+1.5 : all points are unmatched
+
+Case 2: (Point count lesser)
+2.1 : Successfull match for the points in QN figure, still missing some blocks.
+2.2 : Not all points mapped to unique clusters (one point in one cluster mapping not happend)
+2.3 : getCluster methord not returned a cluster for a particular point.
+2.4 : Point miss mapped to another clusters (extream case!!)
+2.5 : all points are unmatched
+
+Case 3: (Point count greater)
+3.1 : Sucessfully matched, but some points are extra
+3.2 : Not all points mapped to unique clusters (one point in one cluster mapping not happend)
+3.3 : getCluster methord not returned a cluster for a particular point.
+3.4 : Point miss mapped to another clusters (extream case!!)
+3.5 : all points are unmatched
+3.6 : points that are not part of a cluster containg the text.
+
+
+
+common:
+
+3.1 : Sucessfully matched
+3.3 : getCluster methord not returned a cluster for a particular point.
+3.5 : all points are unmatched
