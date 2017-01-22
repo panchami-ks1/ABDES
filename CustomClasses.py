@@ -111,6 +111,38 @@ class Cluster:
 
         return Point(centroid_coords, self.points[0].text)
 
+class Point:
+    def __init__(self, coords, text=None):
+        self.coords = coords
+        self.n = len(coords)
+        self.text = text
+
+    def __repr__(self):
+        return str(self.coords)
+
+class Head():
+    def __init__(self, contour, point):
+        self.point = point
+        self.cnt = contour
+
+class Tail():
+    def __init__(self, contour, point):
+        self.point = point
+        self.cnt = contour
+
+class LineObject():
+    def __init__(self, contour, left, right, top, bottom):
+        self.lef = left
+        self.rig = right
+        self.top = top
+        self.bot = bottom
+        self.cnt = contour
+
+class ArrowObject():
+    def __init__(self, head, tail, line):
+        self.head = head
+        self.tail = tail
+        self.line = line
 
 def getDistance(a, b):
     '''

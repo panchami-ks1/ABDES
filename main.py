@@ -6,6 +6,7 @@
 
 
 # Imports
+from ArrowDetection import arrowEvaluation
 from Evaluation import diagramEvaluation
 from Training import trainData
 
@@ -13,5 +14,6 @@ from Training import trainData
 
 
 if __name__ == "__main__":
-    trainData()
-    diagramEvaluation()
+    # trainData()
+    # diagramEvaluation()
+    arrowEvaluation()
