@@ -9,5 +9,5 @@
 from CustomMethods import main, diagramEvaluation
 
 if __name__ == "__main__":
-    # main()
-    diagramEvaluation()
+     main()
+     #diagramEvaluation()

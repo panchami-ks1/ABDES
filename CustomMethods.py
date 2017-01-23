@@ -8,6 +8,7 @@ from PIL import Image
 import dill
 import cv2
 import time
+import numpy as np
 
 import pytesser
 from CustomClasses import ContourObject, ImageObject, Point, TrainedData
@@ -27,7 +28,7 @@ def addCountourToList(contourList, cnt, x, y, text):
         for contourVar in contourList:
             tempX = contourVar.x - x
             tempY = contourVar.y - y
-            if tempY < 5 and tempX < 5:
+            if tempY < 6 and tempX < 6:
                 print "Point removed" + str(x) + str(y)
                 flag = False
             if x == 1 and y == 1:
@@ -50,7 +51,9 @@ def processImage(imageFileName):
     #ret, thresh = cv2.threshold(gray, 127, 255, 0)
     thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
+    deleteRegions(im,contours)
     idx = 0
+    lis=[]
     contourList = []
     for cnt in contours:
         idx += 1
@@ -66,15 +69,18 @@ def processImage(imageFileName):
             img = Image.open(fileName)
             #plt.plot(roi)
             text = pytesser.image_to_string(img).strip()
-            #print text
+            print text
+            lis.append(text)
             addCountourToList(contourList, cnt, x, y, text)
 
 
+    #print lis
     return ImageObject(im, contourList)
 
 def generateInitialClusterPoints(images):
     initContourPoints = []
     initContoursList = images[0].contourList
+    #print len(images[0].contourList)
     for contour in initContoursList:
         initContourPoints.append(Point([contour.cX, contour.cY], contour.text))
     return initContourPoints
@@ -104,7 +110,7 @@ def saveTrainingData(images, clusters):
 
 def diagramEvaluation():
         images = []
-        images.append(processImage('images/diag_err_excess.bmp'))
+        images.append(processImage('images/diagram.jpg'))
         with open('trained_data.pkl', 'rb') as f:
             data = dill.load(f)
 
@@ -176,12 +182,34 @@ def findCluster(p,clusters):
          if p in cluster.points:
               return cluster
 
+def deleteRegions(imageName,contour):
 
+    mask = np.ones(imageName.shape[:2], dtype="uint8") * 255
+    cv2.imwrite('images/deleted/mask.jpg', mask)
+    for c in contour:
+        # if the contour is bad, draw it on the mask
+        if is_contour_bad(c):
+            cv2.drawContours(mask, [c], -1, 0, -1)
+
+    # remove the contours from the image and show the resulting images
+    image1 = cv2.bitwise_not(imageName, mask=mask)
+
+    cv2.imwrite('images/deleted/edge.jpg', mask)
+    cv2.imwrite('images/deleted/original.jpg', image1)
+
+
+def is_contour_bad(c):
+    # approximate the contour
+    peri = cv2.arcLength(c, True)
+    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+
+    # the contour is 'bad' if it is not a rectangle
+    return  len(approx) == 4
 
 def main():
     images = []
-    images.append(processImage('images/diag.bmp'))
-    images.append(processImage('images/diag2.bmp'))
+    images.append(processImage('images/diag1.jpg'))
+    images.append(processImage('images/diag1.jpg'))
 
 
 
@@ -191,6 +219,7 @@ def main():
 
     #Populate initial points for clustering
     initContourPoints = generateInitialClusterPoints(images)
+    #print len(initContourPoints)
 
 
     # Generate some points

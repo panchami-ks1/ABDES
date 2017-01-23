@@ -7,6 +7,7 @@ def kmeans(initContourPoints, points, cutoff):
     # Create k clusters using initial contour points
     clusters = [Cluster([p]) for p in initContourPoints]
     # Loop through the dataset until the clusters stabilize
+
     loopCounter = 0
     while True:
         # Create a list of lists to hold the points in each cluster
