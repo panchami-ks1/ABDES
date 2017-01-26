@@ -1,80 +1,76 @@
+################################################################
+####### Automate Block Diagram Evaluation System (ABDES) #######
+######## Diagram Evaluation related logics defined here.########
+################################################################
+
+# Imports
 from dill import dill
-from CommonMethods import processImage, generateAllContourPointsForClustering, imageFileDirPath, dataSaveDirPath
-from ConsoleOutMethods import showClusters
+from CommonMethods import processImage, generateAllContourPointsForClustering, image_file_dir_path, data_save_dir_path
+from ConsoleOutMethods import displayClassificationResult
 from KmeansClassification import kmeansClassification
 
 
-def diagramEvaluation():
-    images = []
-    images.append(processImage(imageFileDirPath, 'proj_diag1_Mixed.jpg'))
-    with open(dataSaveDirPath + 'trained_data.pkl', 'rb') as f:
+def diagramEvaluation(image_name_for_evaluation):
+    images = [processImage(image_file_dir_path, image_name_for_evaluation)]
+    with open(data_save_dir_path + 'trained_data.pkl', 'rb') as f:
         data = dill.load(f)
 
     points = generateAllContourPointsForClustering(images)
 
-    clusters = kmeansClassification(data.clusters, points)
+    point_cluster_map = kmeansClassification(data.clusters, points)
 
-    evaluateAnswerPoints(points, clusters)
+    score = evaluateAnswerPoints(points, point_cluster_map)
+    print "Score : ", score
+    displayClassificationResult(point_cluster_map)
 
-    showClusters(clusters)
 
-
-def evaluateAnswerPoints(points, clusters):
+def evaluateAnswerPoints(points, point_cluster_map):
     # Checking whether the answer diagram and trained data has equal no of text blocks/regions or not.
-    check = len(points) - len(clusters)
-
+    check = len(points) - len(point_cluster_map)
     if check == 0:
-        evaluateAnswerPointsEqual(points, clusters)
+        score = evaluateAnswerPointsEqual(point_cluster_map)
     elif check < 0:
-        evaluateAnswerPointsLesser(points, clusters)
+        score = evaluateAnswerPointsLesser(point_cluster_map)
     else:
-        evaluateAnswerPointsGreater(points, clusters)
+        score = evaluateAnswerPointsGreater(point_cluster_map)
+
+    return score
 
 
 # To handle scenario with question diagrams having equal no of text regions/blocks.
-def evaluateAnswerPointsEqual(points, clusters):
+def evaluateAnswerPointsEqual(point_cluster_map):
     print "Handling equal point - cluster scenario."
     count = 0
-    for p in points:
-        cluster = findCluster(p, clusters)
-        if cluster.points[1].text == p.text:
+    for (point, cluster) in point_cluster_map:
+        if cluster.points[0].text == point.text:
             count += 1
-    print "Score : ", count
-    pass
+
+    return count
 
 
 # To handle error scenario with question diagrams having lesser text regions/blocks.
-def evaluateAnswerPointsLesser(points, clusters):
+def evaluateAnswerPointsLesser(point_cluster_map):
     print "Handling lesser point than cluster scenario."
     count = 0
-    for p in points:
-        cluster = findCluster(p, clusters)
+    for (point, cluster) in point_cluster_map:
         if cluster:
-            if cluster.points[1].text == p.text:
+            if cluster.points[0].text == point.text:
                 count += 1
         else:
             count -= 1
-    print "Score : ", count
-    pass
+
+    return count
 
 
 # To handle error scenario with question diagrams having more text regions/blocks.
-def evaluateAnswerPointsGreater(points, clusters):
+def evaluateAnswerPointsGreater(point_cluster_map):
     print "Handling greater point than cluster scenario."
     count = 0
-    for p in points:
-        cluster = findCluster(p, clusters)
+    for (point, cluster) in point_cluster_map:
         if cluster:
-            if cluster.points[1].text == p.text:
+            if cluster.points[0].text == point.text:
                 count += 1
         else:
             count -= 1
 
-    print "Score : ", count
-    pass
-
-
-def findCluster(p, clusters):
-    for i, cluster in enumerate(clusters):
-        if p in cluster.points:
-            return cluster
+    return count
