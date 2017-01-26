@@ -13,9 +13,10 @@ import math
 # 1. Image file for reference.
 # 2. A List containing individual text regions detected from the image.
 class ImageObject():
-    def __init__(self, image, contour_list, image_name):
+    def __init__(self, image, contour_list, arrows, image_name):
         self.image = image
         self.contour_list = contour_list
+        self.arrows = arrows
         self.image_name = image_name
 
 
@@ -31,6 +32,7 @@ class ContourObject():
         self.x = x
         self.y = y
         self.text = text
+        self.point = Point([x, y])
         self.cX, self.cY = self.findCentroid(contour, x, y)
 
     def findCentroid(self, contour, x, y):
@@ -48,9 +50,10 @@ class ContourObject():
 
 
 class TrainedData:
-    def __init__(self, images, clusters):
+    def __init__(self, images, clusters, arrow_cluster_map):
         self.images = images
         self.clusters = clusters
+        self.arrow_cluster_map = arrow_cluster_map
 
 
 class Point:

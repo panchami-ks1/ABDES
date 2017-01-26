@@ -9,12 +9,9 @@ from PIL import Image
 import cv2
 from PIL import ImageFilter
 import pytesser
+from ArrowDetection import getArrowsFromImage
+from CommonDirPaths import image_temp_dir_path, image_detected_dir_path
 from CustomClasses import ContourObject, ImageObject, Point
-
-image_file_dir_path = "images/diagrams/"
-image_temp_dir_path = "images/temp/"
-image_detected_dir_path = "images/detected/"
-data_save_dir_path = "data/"
 
 
 # Detected contour region details.
@@ -28,7 +25,9 @@ def processImage(path, input_image_name):
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     image = Image.open(image_file_path)
     thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
-    contours, hierarchy = cv2.findContours(thresh, 1, 2)
+
+    # On any error !!! Change a, from this line -> contours, hierarchy = cv2.findContours(thresh, 1, 2)
+    a, contours, hierarchy = cv2.findContours(thresh, 1, 2)
     idx = 0
     contour_list = []
     for cnt in contours:
@@ -54,7 +53,8 @@ def processImage(path, input_image_name):
                 image = removeImageContent(image, [x - 3, y - 3, (x + w + 3), (y + h + 3)])
                 print "Text :", text, "$$"
     image.save(image_detected_dir_path + "Cut_" + input_image_name)
-    imageObject = ImageObject(im, contour_list, input_image_name)
+    arrows = getArrowsFromImage(input_image_name)
+    imageObject = ImageObject(im, contour_list, arrows, input_image_name)
     return imageObject
 
 

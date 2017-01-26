@@ -5,17 +5,18 @@
 
 # Imports
 import cv2
-from CommonMethods import getDistance, image_detected_dir_path, image_file_dir_path
+import math
+
+from CommonDirPaths import image_detected_dir_path, image_file_dir_path
 from ConsoleOutMethods import displayArrows
 from CustomClasses import Point, LineObject, Head, ArrowObject, Tail
 
 
-def arrowEvaluation():
-    image_file_name = "proj_diag1_Mixed.jpg"
-    image_file_path = image_detected_dir_path + "Cut_" + image_file_name
+def getArrowsFromImage(image_file_name):
+    image_file_path = image_detected_dir_path + "Cut_" +image_file_name
     im = cv2.imread(image_file_path)
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    cv2.imshow("Gray", gray)
+    # cv2.imshow("Gray", gray)
 
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
@@ -23,13 +24,16 @@ def arrowEvaluation():
 
     cv2.imshow("Thresh", thresh)
     cv2.imwrite(image_detected_dir_path + "Arrows_" + image_file_name, thresh)
-    contours, hierarchy = cv2.findContours(thresh, 1, 2)
+
+    # On any error !!! Change a, from this line -> contours, hierarchy = cv2.findContours(thresh, 1, 2)
+    a, contours, hierarchy = cv2.findContours(thresh, 1, 2)
 
     arrows = findArrows(contours)
     displayArrows(arrows)
     op_image = cv2.imread(image_file_dir_path + image_file_name)
     op_image_arrowed = drawArrows(op_image, arrows)
     cv2.imwrite(image_detected_dir_path + "Diag_Arrow_" + image_file_name, op_image_arrowed)
+    return arrows
 
 
 def findArrows(contours):
@@ -37,9 +41,9 @@ def findArrows(contours):
     heads, lines = findHeadsAndLines(contours)
 
     for head in heads:
-        nearestLine = findTheNearestLine(head, lines)
-        tailPoint = findTheTailPoint(head, nearestLine)
-        arrows.append(ArrowObject(head, Tail(nearestLine.cnt, tailPoint), nearestLine))
+        nearest_line = findTheNearestLine(head, lines)
+        tail_point = findTheTailPoint(head, nearest_line)
+        arrows.append(ArrowObject(head, Tail(nearest_line.cnt, tail_point), nearest_line))
 
     return arrows
 
@@ -61,67 +65,67 @@ def findHeadsAndLines(contours):
 
             # Saving the line information for future processing.
             else:
-                extLeft = tuple(c[c[:, :, 0].argmin()][0])
-                extRight = tuple(c[c[:, :, 0].argmax()][0])
-                extTop = tuple(c[c[:, :, 1].argmin()][0])
-                extBot = tuple(c[c[:, :, 1].argmax()][0])
-                lefPoint = Point([extLeft[0], extLeft[1]])
-                rigPoint = Point([extRight[0], extRight[1]])
-                topPoint = Point([extTop[0], extTop[1]])
-                botPoint = Point([extBot[0], extBot[1]])
-                lines.append(LineObject(c, lefPoint, rigPoint, topPoint, botPoint))
+                ext_left = tuple(c[c[:, :, 0].argmin()][0])
+                ext_right = tuple(c[c[:, :, 0].argmax()][0])
+                ext_top = tuple(c[c[:, :, 1].argmin()][0])
+                ext_bot = tuple(c[c[:, :, 1].argmax()][0])
+                lef_point = Point([ext_left[0], ext_left[1]])
+                rig_point = Point([ext_right[0], ext_right[1]])
+                top_point = Point([ext_top[0], ext_top[1]])
+                bot_point = Point([ext_bot[0], ext_bot[1]])
+                lines.append(LineObject(c, lef_point, rig_point, top_point, bot_point))
 
     return heads, lines
 
 
 def findTheNearestLine(head, lines):
-    headPoint = head.point
-    smallest_distance = getDistance(headPoint, lines[0].lef)
-    nearestLine = lines[0]
+    head_point = head.point
+    smallest_distance = getDistance(head_point, lines[0].lef)
+    nearest_line = lines[0]
     for line in lines:
-        distLef = getDistance(headPoint, line.lef)
-        distRig = getDistance(headPoint, line.rig)
-        distTop = getDistance(headPoint, line.top)
-        distBot = getDistance(headPoint, line.bot)
+        dist_lef = getDistance(head_point, line.lef)
+        dist_rig = getDistance(head_point, line.rig)
+        dist_top = getDistance(head_point, line.top)
+        dist_bot = getDistance(head_point, line.bot)
 
-        if distLef < smallest_distance:
-            smallest_distance = distLef
-            nearestLine = line
-        if distRig < smallest_distance:
-            smallest_distance = distRig
-            nearestLine = line
-        if distTop < smallest_distance:
-            smallest_distance = distTop
-            nearestLine = line
-        if distBot < smallest_distance:
-            smallest_distance = distBot
-            nearestLine = line
-    return nearestLine
+        if dist_lef < smallest_distance:
+            smallest_distance = dist_lef
+            nearest_line = line
+        if dist_rig < smallest_distance:
+            smallest_distance = dist_rig
+            nearest_line = line
+        if dist_top < smallest_distance:
+            smallest_distance = dist_top
+            nearest_line = line
+        if dist_bot < smallest_distance:
+            smallest_distance = dist_bot
+            nearest_line = line
+    return nearest_line
 
 
 def findTheTailPoint(head, line):
-    headPoint = head.point
-    largest_distance = getDistance(headPoint, line.lef)
-    tailPoint = line.lef
+    head_point = head.point
+    largest_distance = getDistance(head_point, line.lef)
+    tail_point = line.lef
 
-    distLef = getDistance(headPoint, line.lef)
-    distRig = getDistance(headPoint, line.rig)
-    distTop = getDistance(headPoint, line.top)
-    distBot = getDistance(headPoint, line.bot)
+    dist_lef = getDistance(head_point, line.lef)
+    dist_rig = getDistance(head_point, line.rig)
+    dist_top = getDistance(head_point, line.top)
+    dist_bot = getDistance(head_point, line.bot)
 
-    if distLef > largest_distance:
-        largest_distance = distLef
-        tailPoint = line.lef
-    if distRig > largest_distance:
-        largest_distance = distRig
-        tailPoint = line.rig
-    if distTop > largest_distance:
-        largest_distance = distTop
-        tailPoint = line.top
-    if distBot > largest_distance:
-        tailPoint = line.bot
+    if dist_lef > largest_distance:
+        largest_distance = dist_lef
+        tail_point = line.lef
+    if dist_rig > largest_distance:
+        largest_distance = dist_rig
+        tail_point = line.rig
+    if dist_top > largest_distance:
+        largest_distance = dist_top
+        tail_point = line.top
+    if dist_bot > largest_distance:
+        tail_point = line.bot
 
-    return tailPoint
+    return tail_point
 
 
 def drawArrows(im, arrows):
@@ -139,3 +143,43 @@ def drawArrows(im, arrows):
     cv2.imshow("Image", im)
     cv2.waitKey(0)
     return im
+
+
+def evaluateArrowClusterRelation(arrows, clusters):
+    arrow_cluster_map = []
+    for arrow in arrows:
+        head_cluster, tail_cluster = findHeadsAndTailClusters(arrow, clusters)
+        arrow_cluster_map.append((arrow, head_cluster, tail_cluster))
+    return arrow_cluster_map
+
+
+def findHeadsAndTailClusters(arrow, clusters):
+    head_point = arrow.head.point
+    tail_point = arrow.tail.point
+    head_cluster = findNearestClusterFromPoint(head_point, clusters)
+    tail_cluster = findNearestClusterFromPoint(tail_point, clusters)
+    return head_cluster, tail_cluster
+
+
+def findNearestClusterFromPoint(point, clusters):
+    smallest_distance = getDistance(point, clusters[0].centroid)
+    nearest_cluster = clusters[0]
+    for cluster in clusters:
+        distance = getDistance(point, cluster.centroid)
+        if distance < smallest_distance:
+            smallest_distance = distance
+            nearest_cluster = cluster
+
+    return nearest_cluster
+
+
+def getDistance(a, b):
+    """
+        Euclidean distance between two n-dimensional points.
+        Note: This can be very slow and does not scale well
+        """
+    if a.n != b.n:
+        raise Exception("ILLEGAL: non comparable points")
+
+    ret = reduce(lambda x, y: x + pow((a.coords[y] - b.coords[y]), 2), range(a.n), 0.0)
+    return math.sqrt(ret)

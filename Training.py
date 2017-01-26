@@ -4,8 +4,9 @@
 ################################################################
 
 # Imports
-from CommonMethods import processImage, generateInitialClusterPoints, generateAllContourPointsForClustering, \
-    image_file_dir_path, data_save_dir_path
+from ArrowDetection import evaluateArrowClusterRelation
+from CommonDirPaths import image_file_dir_path, data_save_dir_path
+from CommonMethods import processImage, generateInitialClusterPoints, generateAllContourPointsForClustering
 from ConsoleOutMethods import displayClusters
 from CustomClasses import TrainedData
 from Kmeans import kmeans
@@ -35,7 +36,9 @@ def trainData(images_names_to_train):
     clusters = kmeans(init_contour_points, points, opt_cutoff)
     displayClusters(clusters)
 
-    saveTrainingData(images, clusters)
+    arrow_cluster_map = evaluateArrowClusterRelation(images[0].arrows, clusters)
+
+    saveTrainingData(images, clusters, arrow_cluster_map)
 
     # Draw the cluster points
     plt.axis([0, 1024, 0, 768])
@@ -55,8 +58,8 @@ def trainData(images_names_to_train):
 # The main method from where the all project execution begins.
 # arguments : void
 # return : void
-def saveTrainingData(images, clusters):
-    trained_data = TrainedData(images, clusters)
+def saveTrainingData(images, clusters, arrow_cluster_map):
+    trained_data = TrainedData(images, clusters, arrow_cluster_map)
 
     with open(data_save_dir_path + 'trained_data.pkl', 'wb') as f:
         dill.dump(trained_data, f)

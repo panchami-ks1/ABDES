@@ -5,7 +5,9 @@
 
 # Imports
 from dill import dill
-from CommonMethods import processImage, generateAllContourPointsForClustering, image_file_dir_path, data_save_dir_path
+
+from CommonDirPaths import image_file_dir_path, data_save_dir_path
+from CommonMethods import processImage, generateAllContourPointsForClustering
 from ConsoleOutMethods import displayClassificationResult
 from KmeansClassification import kmeansClassification
 
