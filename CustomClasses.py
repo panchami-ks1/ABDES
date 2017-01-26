@@ -6,7 +6,6 @@
 # Imports
 import cv2
 import math
-import dill
 
 
 # ImageObject class is used for saving the complete details of an input image.
@@ -14,10 +13,10 @@ import dill
 # 1. Image file for reference.
 # 2. A List containing individual text regions detected from the image.
 class ImageObject():
-    def __init__(self, image, contourList):
+    def __init__(self, image, contour_list, image_name):
         self.image = image
-        self.contourList = contourList
-        self.image_cut = image
+        self.contour_list = contour_list
+        self.image_name = image_name
 
 
 # ContourObject class is used for saving the details of a  detected text region/contour region.
@@ -48,14 +47,14 @@ class ContourObject():
         return cx, cy
 
 
-class TrainedData():
+class TrainedData:
     def __init__(self, images, clusters):
         self.images = images
         self.clusters = clusters
 
 
 class Point:
-    def __init__(self, coords, text):
+    def __init__(self, coords, text=None):
         self.coords = coords
         self.n = len(coords)
         self.text = text
@@ -111,26 +110,20 @@ class Cluster:
 
         return Point(centroid_coords, self.points[0].text)
 
-class Point:
-    def __init__(self, coords, text=None):
-        self.coords = coords
-        self.n = len(coords)
-        self.text = text
 
-    def __repr__(self):
-        return str(self.coords)
-
-class Head():
+class Head:
     def __init__(self, contour, point):
         self.point = point
         self.cnt = contour
 
-class Tail():
+
+class Tail:
     def __init__(self, contour, point):
         self.point = point
         self.cnt = contour
 
-class LineObject():
+
+class LineObject:
     def __init__(self, contour, left, right, top, bottom):
         self.lef = left
         self.rig = right
@@ -138,11 +131,13 @@ class LineObject():
         self.bot = bottom
         self.cnt = contour
 
-class ArrowObject():
+
+class ArrowObject:
     def __init__(self, head, tail, line):
         self.head = head
         self.tail = tail
         self.line = line
+
 
 def getDistance(a, b):
     '''
