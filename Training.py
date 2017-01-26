@@ -6,7 +6,7 @@
 # Imports
 from CommonMethods import processImage, generateInitialClusterPoints, generateAllContourPointsForClustering, \
     image_file_dir_path, data_save_dir_path
-from ConsoleOutMethods import showClusters
+from ConsoleOutMethods import displayClusters
 from CustomClasses import TrainedData
 from Kmeans import kmeans
 import matplotlib.pyplot as plt
@@ -33,7 +33,7 @@ def trainData(images_names_to_train):
 
     # Cluster those data!
     clusters = kmeans(init_contour_points, points, opt_cutoff)
-    showClusters(clusters)
+    displayClusters(clusters)
 
     saveTrainingData(images, clusters)
 

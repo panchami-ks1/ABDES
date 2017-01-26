@@ -16,7 +16,6 @@ class ImageObject():
     def __init__(self, image, contour_list, image_name):
         self.image = image
         self.contour_list = contour_list
-        self.image_cut = image
         self.image_name = image_name
 
 

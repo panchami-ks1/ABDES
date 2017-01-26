@@ -38,14 +38,15 @@ def processImage(path, input_image_name):
         # approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
         approx = cv2.approxPolyDP(cnt, 0.01 * peri, True)
         if len(approx) == 4:
-            # cv2.rectangle(im, (x, y), (x + w, y + h), (200, 0, 0), 2)
             roi = im[y:y + h, x:x + w]
             file_name = image_temp_dir_path + str(idx) + '.jpg'
             cv2.imwrite(file_name, roi)
 
             img = Image.open(file_name)
 
-            text = pytesser.image_to_string(img).strip()
+            text = pytesser.image_to_string(img).rstrip('\n')
+            text = text.replace('\n', ' ')
+            text = text.strip(' ')
             if addCountourToList(contour_list, cnt, x, y, text):
                 file_name = image_detected_dir_path + str(idx) + '.jpg'
                 cv2.imwrite(file_name, roi)
@@ -54,7 +55,6 @@ def processImage(path, input_image_name):
                 print "Text :", text, "$$"
     image.save(image_detected_dir_path + "Cut_" + input_image_name)
     imageObject = ImageObject(im, contour_list, input_image_name)
-    imageObject.image_cut = image
     return imageObject
 
 

@@ -11,8 +11,9 @@ from CustomClasses import Point, LineObject, Head, ArrowObject, Tail
 
 
 def arrowEvaluation():
-    image_file_name = image_detected_dir_path + "Cut_proj_diag1_Mixed.jpg"
-    im = cv2.imread(image_file_name)
+    image_file_name = "proj_diag1_Mixed.jpg"
+    image_file_path = image_detected_dir_path + "Cut_" + image_file_name
+    im = cv2.imread(image_file_path)
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     cv2.imshow("Gray", gray)
 
@@ -21,13 +22,14 @@ def arrowEvaluation():
     thresh = cv2.adaptiveThreshold(blurred, 255, 1, 1, 11, 2)
 
     cv2.imshow("Thresh", thresh)
-    cv2.imwrite(image_detected_dir_path + "Arrows_" + "proj_diag1_Mixed.jpg", thresh)
+    cv2.imwrite(image_detected_dir_path + "Arrows_" + image_file_name, thresh)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
 
     arrows = findArrows(contours)
     displayArrows(arrows)
-    opImage = cv2.imread(image_file_dir_path + "proj_diag1_Mixed.jpg")
-    drawArrows(opImage, arrows)
+    op_image = cv2.imread(image_file_dir_path + image_file_name)
+    op_image_arrowed = drawArrows(op_image, arrows)
+    cv2.imwrite(image_detected_dir_path + "Diag_Arrow_" + image_file_name, op_image_arrowed)
 
 
 def findArrows(contours):
@@ -136,3 +138,4 @@ def drawArrows(im, arrows):
 
     cv2.imshow("Image", im)
     cv2.waitKey(0)
+    return im
