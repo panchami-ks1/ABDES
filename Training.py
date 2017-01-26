@@ -1,5 +1,11 @@
+################################################################
+####### Automate Block Diagram Evaluation System (ABDES) #######
+############# Training related logics defined here.#############
+################################################################
+
+# Imports
 from CommonMethods import processImage, generateInitialClusterPoints, generateAllContourPointsForClustering, \
-    imageFileDirPath, dataSaveDirPath
+    image_file_dir_path, data_save_dir_path
 from ConsoleOutMethods import showClusters
 from CustomClasses import TrainedData
 from Kmeans import kmeans
@@ -7,18 +13,18 @@ import matplotlib.pyplot as plt
 from dill import dill
 
 
-def trainData():
+def trainData(images_names_to_train):
     images = []
-    images.append(processImage(imageFileDirPath, 'proj_diag1_Mixed.jpg'))
+    for image_name in images_names_to_train:
+        images.append(processImage(image_file_dir_path, image_name))
     # images.append(processImage('images/diag2.bmp'))
 
     fig = plt.figure(figsize=(8, 6))
     fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
     colors = ['green', 'blue', 'pink', 'gold', 'red', 'yellow', 'black']
 
-    #Populate initial points for clustering
-    initContourPoints = generateInitialClusterPoints(images)
-
+    # Populate initial points for clustering
+    init_contour_points = generateInitialClusterPoints(images)
 
     # Generate some points
     points = generateAllContourPointsForClustering(images)
@@ -26,17 +32,12 @@ def trainData():
     opt_cutoff = 0.5
 
     # Cluster those data!
-    clusters = kmeans(initContourPoints, points, opt_cutoff)
+    clusters = kmeans(init_contour_points, points, opt_cutoff)
     showClusters(clusters)
 
     saveTrainingData(images, clusters)
 
     # Draw the cluster points
-    X = []
-    Y = []
-
-    Xc = []
-    Yc = []
     plt.axis([0, 1024, 0, 768])
     for i, c in enumerate(clusters):
         X = []
@@ -55,8 +56,8 @@ def trainData():
 # arguments : void
 # return : void
 def saveTrainingData(images, clusters):
-    trainedData = TrainedData(images,clusters)
+    trained_data = TrainedData(images, clusters)
 
-    with open(dataSaveDirPath + 'trained_data.pkl', 'wb') as f:
-        dill.dump(trainedData, f)
+    with open(data_save_dir_path + 'trained_data.pkl', 'wb') as f:
+        dill.dump(trained_data, f)
     pass

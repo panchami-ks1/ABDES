@@ -1,18 +1,22 @@
-import math
+################################################################
+####### Automate Block Diagram Evaluation System (ABDES) #######
+############ K-Means Clustering logics defined below.###########
+################################################################
 
+# Imports
 from CommonMethods import getDistance
 from CustomClasses import Cluster
 
 
-def kmeans(initContourPoints, points, cutoff):
+def kmeans(init_contour_points, points, cutoff):
     # Create k clusters using initial contour points
-    clusters = [Cluster([p]) for p in initContourPoints]
+    clusters = [Cluster([p]) for p in init_contour_points]
     # Loop through the dataset until the clusters stabilize
     loopCounter = 0
     while True:
         # Create a list of lists to hold the points in each cluster
         lists = [[] for c in clusters]
-        clusterCount = len(clusters)
+        cluster_count = len(clusters)
 
         # Start counting loops
         loopCounter += 1
@@ -26,7 +30,7 @@ def kmeans(initContourPoints, points, cutoff):
             clusterIndex = 0
 
             # For the remainder of the clusters ...
-            for i in range(clusterCount - 1):
+            for i in range(cluster_count - 1):
                 # calculate the distance of that point to each other cluster's
                 # centroid.
                 distance = getDistance(p, clusters[i + 1].centroid)
@@ -42,8 +46,7 @@ def kmeans(initContourPoints, points, cutoff):
         biggest_shift = 0.0
 
         # As many times as there are clusters ...
-        for i in range(clusterCount):
-
+        for i in range(cluster_count):
             # Calculate how far the centroid moved in this iteration
             shift = clusters[i].update(lists[i])
             # Keep track of the largest move from all cluster centroid updates
@@ -54,4 +57,3 @@ def kmeans(initContourPoints, points, cutoff):
             print "Converged after %s iterations" % loopCounter
             break
     return clusters
-

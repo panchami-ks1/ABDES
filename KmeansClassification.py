@@ -1,5 +1,9 @@
-import math
+################################################################
+####### Automate Block Diagram Evaluation System (ABDES) #######
+########## K-Means Classification logics defined below.#########
+################################################################
 
+# Imports
 from CommonMethods import getDistance
 
 
@@ -26,8 +30,7 @@ def kmeansClassification(clusters, points):
             if distance < smallest_distance:
                 smallest_distance = distance
                 clusterIndex = i + 1
-        threshold=50
-        if smallest_distance>50:
+        if smallest_distance > 50:
             print "Removed"
         else:
             lists[clusterIndex].append(p)

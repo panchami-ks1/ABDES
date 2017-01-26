@@ -1,6 +1,6 @@
 ################################################################
 ####### Automate Block Diagram Evaluation System (ABDES) #######
-##### Custom Classes used for the project are defined here.#####
+##### Common Methods used for the project are defined here.#####
 ################################################################
 
 # Imports
@@ -11,26 +11,26 @@ from PIL import ImageFilter
 import pytesser
 from CustomClasses import ContourObject, ImageObject, Point
 
-imageFileDirPath = "images/diagrams/"
-imageTempDirPath = "images/temp/"
-imageDetectedDirPath = "images/detected/"
-dataSaveDirPath = "data/"
+image_file_dir_path = "images/diagrams/"
+image_temp_dir_path = "images/temp/"
+image_detected_dir_path = "images/detected/"
+data_save_dir_path = "data/"
+
 
 # Detected contour region details.
 # arguments : (imageFileName)
 # return : ImageObject
 
 
-def processImage(path, inputFileName):
-    imageFileName = path + inputFileName
-    im = cv2.imread(imageFileName)
+def processImage(path, input_image_name):
+    image_file_path = path + input_image_name
+    im = cv2.imread(image_file_path)
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-    image = Image.open(imageFileName)
-    #ret, thresh = cv2.threshold(gray, 127, 255, 0)
+    image = Image.open(image_file_path)
     thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
     idx = 0
-    contourList = []
+    contour_list = []
     for cnt in contours:
         idx += 1
         x, y, w, h = cv2.boundingRect(cnt)
@@ -40,38 +40,36 @@ def processImage(path, inputFileName):
         if len(approx) == 4:
             # cv2.rectangle(im, (x, y), (x + w, y + h), (200, 0, 0), 2)
             roi = im[y:y + h, x:x + w]
-            fileName = imageTempDirPath + str(idx) + '.jpg'
-            cv2.imwrite(fileName, roi)
+            file_name = image_temp_dir_path + str(idx) + '.jpg'
+            cv2.imwrite(file_name, roi)
 
-            img = Image.open(fileName)
+            img = Image.open(file_name)
 
             text = pytesser.image_to_string(img).strip()
-            #print text
-            if (addCountourToList(contourList, cnt, x, y, text)):
-                fileName = imageDetectedDirPath + str(idx) + '.jpg'
-                cv2.imwrite(fileName, roi)
+            if addCountourToList(contour_list, cnt, x, y, text):
+                file_name = image_detected_dir_path + str(idx) + '.jpg'
+                cv2.imwrite(file_name, roi)
                 cv2.rectangle(im, (x, y), (x + w, y + h), (255, 0, 255), 2)
-                image = removeImageContent(image, [x-3, y-3, (x + w + 3), (y + h + 3)])
+                image = removeImageContent(image, [x - 3, y - 3, (x + w + 3), (y + h + 3)])
                 print "Text :", text, "$$"
-    image.save(imageDetectedDirPath + "Cut_" + inputFileName)
-    imageObject = ImageObject(im, contourList)
+    image.save(image_detected_dir_path + "Cut_" + input_image_name)
+    imageObject = ImageObject(im, contour_list, input_image_name)
     imageObject.image_cut = image
-    return ImageObject(im, contourList)
+    return imageObject
 
 
 # Method will create a ContourObject and add it to the contourList given in the argument.
 # arguments : (contourList, cnt, x, y)
 # return : void
-def addCountourToList(contourList, cnt, x, y, text):
-    flag = False
-    if len(contourList) == 0 and text != "":
-        contourList.append(ContourObject(cnt, x, y, text))
+def addCountourToList(contour_list, cnt, x, y, text):
+    if len(contour_list) == 0 and text != "":
+        contour_list.append(ContourObject(cnt, x, y, text))
         flag = True
     else:
         flag = True
-        for contourVar in contourList:
-            tempX = contourVar.x - x
-            tempY = contourVar.y - y
+        for contour_var in contour_list:
+            tempX = contour_var.x - x
+            tempY = contour_var.y - y
             if tempY < 5 and tempX < 5:
                 print "Point removed" + str(x) + str(y)
                 flag = False
@@ -79,9 +77,9 @@ def addCountourToList(contourList, cnt, x, y, text):
                 flag = False
                 print "Point removed" + str(x) + str(y)
         if flag and (text != "" or len(text) != 0):
-            contourObject = ContourObject(cnt, x, y, text)
-            if contourObject.cX != 0 and contourObject.cY != 0:
-                contourList.append(contourObject)
+            contour_object = ContourObject(cnt, x, y, text)
+            if contour_object.cX != 0 and contour_object.cY != 0:
+                contour_list.append(contour_object)
                 print x, y, text
             else:
                 flag = False
@@ -100,27 +98,27 @@ def removeImageContent(image, positions):
 
 
 def generateInitialClusterPoints(images):
-    initContourPoints = []
-    initContoursList = images[0].contourList
-    for contour in initContoursList:
-        initContourPoints.append(Point([contour.cX, contour.cY], contour.text))
-    return initContourPoints
+    init_contour_points = []
+    init_contours_list = images[0].contour_list
+    for contour in init_contours_list:
+        init_contour_points.append(Point([contour.cX, contour.cY], contour.text))
+    return init_contour_points
 
 
 def generateAllContourPointsForClustering(images):
-    contourPoints = []
+    contour_points = []
     for image in images:
-        contourList = image.contourList
-        for contour in contourList:
-            contourPoints.append(Point([contour.cX, contour.cY], contour.text))
-    return contourPoints
+        contour_list = image.contour_list
+        for contour in contour_list:
+            contour_points.append(Point([contour.cX, contour.cY], contour.text))
+    return contour_points
 
 
 def getDistance(a, b):
-    '''
+    """
         Euclidean distance between two n-dimensional points.
         Note: This can be very slow and does not scale well
-        '''
+        """
     if a.n != b.n:
         raise Exception("ILLEGAL: non comparable points")
 

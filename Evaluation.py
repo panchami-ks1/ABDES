@@ -1,13 +1,18 @@
+################################################################
+####### Automate Block Diagram Evaluation System (ABDES) #######
+######## Diagram Evaluation related logics defined here.########
+################################################################
+
+# Imports
 from dill import dill
-from CommonMethods import processImage, generateAllContourPointsForClustering, imageFileDirPath, dataSaveDirPath
+from CommonMethods import processImage, generateAllContourPointsForClustering, image_file_dir_path, data_save_dir_path
 from ConsoleOutMethods import showClusters
 from KmeansClassification import kmeansClassification
 
 
-def diagramEvaluation():
-    images = []
-    images.append(processImage(imageFileDirPath, 'proj_diag1_Mixed.jpg'))
-    with open(dataSaveDirPath + 'trained_data.pkl', 'rb') as f:
+def diagramEvaluation(image_name_for_evaluation):
+    images = [processImage(image_file_dir_path, image_name_for_evaluation)]
+    with open(data_save_dir_path + 'trained_data.pkl', 'rb') as f:
         data = dill.load(f)
 
     points = generateAllContourPointsForClustering(images)

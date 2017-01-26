@@ -1,16 +1,18 @@
-import cv2
-import imutils
-import math
-from PIL import Image
+################################################################
+####### Automate Block Diagram Evaluation System (ABDES) #######
+########## Arrow detection related logics resides here.#########
+################################################################
 
-from CommonMethods import getDistance, imageDetectedDirPath, imageFileDirPath
+# Imports
+import cv2
+from CommonMethods import getDistance, image_detected_dir_path, image_file_dir_path
 from ConsoleOutMethods import displayArrows
 from CustomClasses import Point, LineObject, Head, ArrowObject, Tail
 
 
 def arrowEvaluation():
-    imageFileName = imageDetectedDirPath + "Cut_proj_diag1_Mixed.jpg"
-    im = cv2.imread(imageFileName)
+    image_file_name = image_detected_dir_path + "Cut_proj_diag1_Mixed.jpg"
+    im = cv2.imread(image_file_name)
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     cv2.imshow("Gray", gray)
 
@@ -19,18 +21,18 @@ def arrowEvaluation():
     thresh = cv2.adaptiveThreshold(blurred, 255, 1, 1, 11, 2)
 
     cv2.imshow("Thresh", thresh)
-
+    cv2.imwrite(image_detected_dir_path + "Arrows_" + "proj_diag1_Mixed.jpg", thresh)
     contours, hierarchy = cv2.findContours(thresh, 1, 2)
 
     arrows = findArrows(contours)
     displayArrows(arrows)
-    opImage = cv2.imread(imageFileDirPath + "proj_diag1_Mixed.jpg")
+    opImage = cv2.imread(image_file_dir_path + "proj_diag1_Mixed.jpg")
     drawArrows(opImage, arrows)
 
 
 def findArrows(contours):
     arrows = []
-    heads , lines = findHeadsAndLines(contours)
+    heads, lines = findHeadsAndLines(contours)
 
     for head in heads:
         nearestLine = findTheNearestLine(head, lines)
@@ -39,6 +41,7 @@ def findArrows(contours):
 
     return arrows
 
+
 def findHeadsAndLines(contours):
     heads = []
     lines = []
@@ -46,10 +49,10 @@ def findHeadsAndLines(contours):
         M = cv2.moments(c)
         # Removing noise data from the detected contours
         area = cv2.contourArea(c)
-        if (M["m00"] != 0 and area > 10):
+        if M["m00"] != 0 and area > 10:
 
             # Head detection. Contours with area less than 90 will be a head.
-            if area < 90 :
+            if area < 90:
                 cX = int((M["m10"] / M["m00"]))
                 cY = int((M["m01"] / M["m00"]))
                 heads.append(Head(c, Point([cX, cY])))
@@ -60,13 +63,14 @@ def findHeadsAndLines(contours):
                 extRight = tuple(c[c[:, :, 0].argmax()][0])
                 extTop = tuple(c[c[:, :, 1].argmin()][0])
                 extBot = tuple(c[c[:, :, 1].argmax()][0])
-                lefPoint = Point([extLeft[0],extLeft[1]])
-                rigPoint = Point([extRight[0],extRight[1]])
+                lefPoint = Point([extLeft[0], extLeft[1]])
+                rigPoint = Point([extRight[0], extRight[1]])
                 topPoint = Point([extTop[0], extTop[1]])
-                botPoint = Point([extBot[0],extBot[1]])
+                botPoint = Point([extBot[0], extBot[1]])
                 lines.append(LineObject(c, lefPoint, rigPoint, topPoint, botPoint))
 
     return heads, lines
+
 
 def findTheNearestLine(head, lines):
     headPoint = head.point
@@ -122,12 +126,13 @@ def drawArrows(im, arrows):
     cnt = 1
     for arrow in arrows:
         cv2.circle(im, (arrow.head.point.coords[0], arrow.head.point.coords[1]), 4, (0, 0, 255), -1)
-        cv2.putText(im, 'H-' + str(cnt), (arrow.head.point.coords[0]-3, arrow.head.point.coords[1]-3), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
+        cv2.putText(im, 'H-' + str(cnt), (arrow.head.point.coords[0] - 3, arrow.head.point.coords[1] - 3),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
 
-        cv2.circle(im, (arrow.tail.point.coords[0],arrow.tail.point.coords[1]), 4, (0, 255, 0), -1)
-        cv2.putText(im, 'T-' + str(cnt), (arrow.tail.point.coords[0]-3, arrow.tail.point.coords[1]-3), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
+        cv2.circle(im, (arrow.tail.point.coords[0], arrow.tail.point.coords[1]), 4, (0, 255, 0), -1)
+        cv2.putText(im, 'T-' + str(cnt), (arrow.tail.point.coords[0] - 3, arrow.tail.point.coords[1] - 3),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 255), 2)
         cnt += 1
 
     cv2.imshow("Image", im)
     cv2.waitKey(0)
-
