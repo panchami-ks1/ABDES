@@ -50,10 +50,12 @@ class ContourObject():
 
 
 class TrainedData:
-    def __init__(self, images, clusters, arrow_cluster_map):
+    def __init__(self, images, clusters, arrow_cluster_map, x, y):
         self.images = images
         self.clusters = clusters
         self.arrow_cluster_map = arrow_cluster_map
+        self.x = x
+        self.y = y
 
 
 class Point:

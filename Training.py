@@ -13,6 +13,8 @@ from Kmeans import kmeans
 import matplotlib.pyplot as plt
 from dill import dill
 
+from SVMImplementation import generateXandY
+
 
 def trainData(images_names_to_train):
     images = []
@@ -59,7 +61,14 @@ def trainData(images_names_to_train):
 # arguments : void
 # return : void
 def saveTrainingData(images, clusters, arrow_cluster_map):
-    trained_data = TrainedData(images, clusters, arrow_cluster_map)
+
+    cluste_size = len(clusters)
+    arrow_size = len(arrow_cluster_map)
+    length = cluste_size + arrow_size
+
+    X, y = generateXandY(length)
+
+    trained_data = TrainedData(images, clusters, arrow_cluster_map, X, y)
 
     with open(data_save_dir_path + 'trained_data.pkl', 'wb') as f:
         dill.dump(trained_data, f)
