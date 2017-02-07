@@ -27,7 +27,7 @@ def processImage(path, input_image_name):
     thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
 
     # On any error !!! Change a, from this line -> contours, hierarchy = cv2.findContours(thresh, 1, 2)
-    a, contours, hierarchy = cv2.findContours(thresh, 1, 2)
+    contours, hierarchy = cv2.findContours(thresh, 1, 2)
     idx = 0
     contour_list = []
     for cnt in contours:

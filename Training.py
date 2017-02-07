@@ -11,6 +11,7 @@ from ConsoleOutMethods import displayClusters
 from CustomClasses import TrainedData
 from Kmeans import kmeans
 import matplotlib.pyplot as plt
+plt.switch_backend("Qt4agg")
 from dill import dill
 
 from SVMImplementation import generateXandY

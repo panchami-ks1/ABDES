@@ -28,9 +28,12 @@ def generateXandY(length):
     y = []
     threshold = 100 / length
     initial_score = 100
+
+    #Adding the fully true case, [100, 100, 100, ... , 100]
     X.append([100] * length)
     y.append(initial_score)
 
+    # Adding the fully failure case, [0, 0, 0, ..., 0]
     X.append([0] * length)
     y.append(0)
 
@@ -54,12 +57,12 @@ def predictFromTrainData():
     cluster_size = len(data.clusters)
     arrow_size = len(data.arrow_cluster_map)
     length = cluster_size + arrow_size
-    print length
     X = data.x
     y = data.y
+    print X
 
     clf = svm.SVR(C=1.0, cache_size=200, coef0=0.0, degree=3,
-                  gamma=0.0, kernel='linear', max_iter=-1,
+                  gamma='auto', kernel='linear', max_iter=-1,
                   shrinking=True, tol=0.001, verbose=False)
     clf.fit(X, y)
 
@@ -84,7 +87,6 @@ def predictFromTrainData():
 
 
 # Sample SVM training logic.
-# Just for understanding.
 # Each line of X contains a training data and y as the result value for the particular training data.
 # X[i] -> y[i]
 

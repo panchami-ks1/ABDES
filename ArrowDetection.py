@@ -26,13 +26,13 @@ def getArrowsFromImage(image_file_name):
     cv2.imwrite(image_detected_dir_path + "Arrows_" + image_file_name, thresh)
 
     # On any error !!! Change a, from this line -> contours, hierarchy = cv2.findContours(thresh, 1, 2)
-    a, contours, hierarchy = cv2.findContours(thresh, 1, 2)
+    contours, hierarchy = cv2.findContours(thresh, 1, 2)
 
     arrows = findArrows(contours)
     displayArrows(arrows)
-    op_image = cv2.imread(image_file_dir_path + image_file_name)
-    op_image_arrowed = drawArrows(op_image, arrows)
-    cv2.imwrite(image_detected_dir_path + "Diag_Arrow_" + image_file_name, op_image_arrowed)
+    # op_image = cv2.imread(image_file_dir_path + image_file_name)
+    # op_image_arrowed = drawArrows(op_image, arrows)
+    # cv2.imwrite(image_detected_dir_path + "Diag_Arrow_" + image_file_name, op_image_arrowed)
     return arrows
 
 
