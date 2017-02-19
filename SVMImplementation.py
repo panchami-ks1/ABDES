@@ -50,7 +50,52 @@ def generateXandY(length):
     return X, y
 
 
-def predictFromTrainData():
+def computeActualScore(predicted_score, error_threshold):
+    print "Error THreshold - ", error_threshold
+    if error_threshold == 0:
+        return predicted_score
+    elif error_threshold < 10:
+        return predicted_score * 0.90
+    elif error_threshold < 25:
+        return predicted_score * 0.75
+    elif error_threshold < 50:
+        return predicted_score * 0.50
+    elif error_threshold < 75:
+        return predicted_score * 0.25
+    elif error_threshold < 85:
+        return predicted_score * 0.15
+    else:
+        return 0.0
+
+
+def predictScoreForDiagram(block_list, arrow_list, error_thresh_count, (X, y)):
+    print "Error thresh count  - ", error_thresh_count
+
+    feature_list = block_list + arrow_list
+    print feature_list
+
+    predict_list = [100] * len(feature_list)
+
+    for i, feature_value in enumerate(feature_list):
+        if feature_value == "N":
+            predict_list[i] = 0
+
+    print predict_list
+
+    clf = svm.SVR(C=1.0, cache_size=200, coef0=0.0, degree=3,
+                  gamma='auto', kernel='linear', max_iter=-1,
+                  shrinking=True, tol=0.001, verbose=False)
+    clf.fit(X, y)
+
+    predicted_score = clf.predict(predict_list)
+
+    actual_score = computeActualScore(predicted_score, ((error_thresh_count * 100)/len(predict_list)))
+
+    print "Predicted score : ", predicted_score, "\nActual Scoe : ", actual_score
+    return actual_score
+
+
+def predictFromTrainData(prediction_list):
     with open(data_save_dir_path + 'trained_data.pkl', 'rb') as f:
         data = dill.load(f)
 
@@ -66,7 +111,7 @@ def predictFromTrainData():
                   shrinking=True, tol=0.001, verbose=False)
     clf.fit(X, y)
 
-    predict_list = [100] * length
+    # predict_list = [100] * length
 
     # Testing purpose.
     # predict_list[0] = 0
@@ -81,8 +126,8 @@ def predictFromTrainData():
     # predict_list[9] = 0
     # predict_list[10] = 0
 
-    print predict_list
-    print clf.predict([predict_list])
+    #print predict_list
+    print clf.predict(prediction_list)
 
 
 

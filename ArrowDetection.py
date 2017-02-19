@@ -22,7 +22,7 @@ def getArrowsFromImage(image_file_name):
 
     thresh = cv2.adaptiveThreshold(blurred, 255, 1, 1, 11, 2)
 
-    cv2.imshow("Thresh", thresh)
+    # cv2.imshow("Thresh", thresh)
     cv2.imwrite(image_detected_dir_path + "Arrows_" + image_file_name, thresh)
 
     # On any error !!! Change a, from this line -> contours, hierarchy = cv2.findContours(thresh, 1, 2)
