@@ -15,6 +15,12 @@ def generatePermutationDatas(length):
     data = []
     input_list = [100] * length
     for x in range(length - 1):
+        # on first iteration -> [0, 100, 100, 100, 100, ..., 100]
+        # on second iteration  -> [0, 0, 100, 100, 100, ..., 100]
+        # ...
+        # ...
+        # on last iteration -> [0, 0, 0, 0, 0, ..., 100]
+
         input_list[x] = 0
         permuted_data = set(itertools.permutations(input_list))
         permuted_data_size = len(permuted_data)
@@ -39,6 +45,9 @@ def generateXandY(length):
 
     data = generatePermutationDatas(length)
 
+    # content of data
+    # (4,[[100, 100, 0, 100], [0, 100, 100, 100], [100, 0, 100, 100], [100, 100, 100, 0]]),
+    # (2, [[0, 0, 100, 100], [0, 100, 0, 100]])
     for (data_length, data_set) in data:
         initial_score -= threshold
         for x in range(data_length):

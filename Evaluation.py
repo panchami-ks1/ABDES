@@ -15,7 +15,7 @@ from SVMImplementation import predictFromTrainData, predictScoreForDiagram
 
 
 def isBlocksMatched(trained_block, input_block):
-    if trained_block.text == input_block.text:
+    if (trained_block.text == input_block.text) or (semanticWordcheck(input_block.text)):
         return True
     else:
         return False
@@ -25,10 +25,10 @@ def isArrowsMatched(trained_arrow, input_arrow):
     flag = True
     (trained_arr, trained_head, trained_tail) = trained_arrow
     (input_arr, input_head, input_tail) = input_arrow
-    if trained_head.centroid.text != input_head.centroid.text:
+    if (trained_head.centroid.text != input_head.centroid.text) and not (semanticWordcheck(input_head.centroid.text)):
         flag = False
 
-    if trained_tail.centroid.text != input_tail.centroid.text:
+    if (trained_tail.centroid.text != input_tail.centroid.text)  and not (semanticWordcheck(input_tail.centroid.text)):
         flag = False
 
     return flag
@@ -138,8 +138,18 @@ def diagramEvaluationNew(image_name_for_evaluation):
     return predictScoreForDiagram(block_list, arrow_list, block_thresh + arrow_thresh, (X, y))
 
 
+def semanticWordcheck(word):
+    dictionaryfile = open(data_save_dir_path+'/rootwords.txt', 'r')
+    words = dictionaryfile.read()
 
-############# Old logic methods
+    if word in words:
+        flag = True
+    else:
+        flag = False
+
+    return flag
+
+############# Old logic methods (No More used !!!)
 
 def diagramEvaluation(image_name_for_evaluation):
     images = [processImage(image_file_dir_path, image_name_for_evaluation)]
@@ -220,13 +230,4 @@ def evaluateAnswerPoints(point_cluster_map, predict_list):
     return predict_list
 
 
-def semanticWordcheck(word):
-    dictionaryfile = open('data/rootwords.txt', 'r')
-    words = dictionaryfile.read()
 
-    if word in words:
-        flag = True
-    else:
-        flag = False
-
-    return flag

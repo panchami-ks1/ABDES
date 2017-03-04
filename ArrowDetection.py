@@ -80,6 +80,7 @@ def findHeadsAndLines(contours):
 
 def findTheNearestLine(head, lines):
     head_point = head.point
+    # Assuming the left most point in the first line as the smallest distance to the head.
     smallest_distance = getDistance(head_point, lines[0].lef)
     nearest_line = lines[0]
     for line in lines:
@@ -108,14 +109,14 @@ def findTheTailPoint(head, line):
     largest_distance = getDistance(head_point, line.lef)
     tail_point = line.lef
 
-    dist_lef = getDistance(head_point, line.lef)
+    # dist_lef = getDistance(head_point, line.lef)
     dist_rig = getDistance(head_point, line.rig)
     dist_top = getDistance(head_point, line.top)
     dist_bot = getDistance(head_point, line.bot)
 
-    if dist_lef > largest_distance:
-        largest_distance = dist_lef
-        tail_point = line.lef
+    # if dist_lef > largest_distance:
+    #     largest_distance = dist_lef
+    #     tail_point = line.lef
     if dist_rig > largest_distance:
         largest_distance = dist_rig
         tail_point = line.rig
