@@ -10,8 +10,8 @@ from ConsoleOutMethods import displayClusters
 from CustomClasses import TrainedData
 from Kmeans import kmeans
 import matplotlib.pyplot as plt
-from dill import dill
-
+# from dill import dill
+import dill
 
 def trainData(images_names_to_train):
     images = []
@@ -47,9 +47,9 @@ def trainData(images_names_to_train):
         for p in c.points:
             X.append(p.coords[0])
             Y.append(p.coords[1])
-        plt.plot(X, Y, 'w', markerfacecolor=colors[i], marker='.', markersize=10)
-        plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i], marker='*', markeredgecolor='k', markersize=10)
-    plt.show()
+        plt.plot(X, Y, 'w', markerfacecolor=colors[i],  markersize=10)
+        plt.plot(Xc, Yc, 'o', markerfacecolor=colors[i],  markeredgecolor='k', markersize=10)
+    # plt.show()
 
 
 # The main method from where the all project execution begins.
